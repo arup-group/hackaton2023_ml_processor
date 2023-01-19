@@ -4,3 +4,5 @@ seaborn
 pip-tools
 openpyxl
 numpy
+nptyping
+skl2onnx
