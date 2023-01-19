@@ -119,6 +119,8 @@ class GPR(GaussianProcessRegressor):
         mean = self.scaler_Y.inverse_transform(mean_transformed.reshape(-1, 1))
         std = self.scaler_Y.scale_*std_transformed.reshape(-1, 1)
         for mu, sigma in zip(mean, std):
+            mu = mu[0]
+            sigma = sigma[0]
             
             confidence_intervals: List[GPConfidenceInterval] = []
             for n_sigma, confidence in zip([1, 2, 3], [68, 95, 99.7]):
@@ -126,14 +128,14 @@ class GPR(GaussianProcessRegressor):
                 confidence_intervals.append(
                     GPConfidenceInterval(
                         confidence = confidence,
-                        bounds = [np.round(mu-n_sigma*sigma,3),np.round(mu + n_sigma*sigma,3)]
+                        bounds = [max(np.round(mu-n_sigma*sigma,3), 0), np.round(mu + n_sigma*sigma,3)]
                     )
                 )
             result.append(
                 GPEstimate(
                     mean=np.round(mu,3),
                     std=np.round(sigma,5),
-                    cv=np.round(std/mean,5),
+                    cv=np.round(sigma/mu,5),
                     confidence_intervals=confidence_intervals
                 )
             )
