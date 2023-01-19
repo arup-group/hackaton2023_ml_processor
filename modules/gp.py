@@ -90,7 +90,7 @@ class GPR(GaussianProcessRegressor):
             mae=mae
         )
 
-    def save_onnx(self, n_X: int, path: str)->None:
+    def save_onnx(self, n_X: int, path: str = None)->None:
         
         initial_type = [('float_input', FloatTensorType([None, n_X]))]
         onx = convert_sklearn(self.gpr, initial_types=initial_type)
