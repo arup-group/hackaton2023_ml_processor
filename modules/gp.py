@@ -4,7 +4,7 @@ from modules.dataset import Dataset
 import pandas as pd
 from sklearn.gaussian_process.kernels import Matern
 from typing import List, Optional
-from modules.dataset import Dataset
+from modules.dataset import Dataset, DatasetType
 import numpy as np
 from skl2onnx.common.data_types import FloatTensorType
 from skl2onnx import convert_sklearn
@@ -16,7 +16,7 @@ class GPR(GaussianProcessRegressor):
         X_idxs: List[int], 
         Y_idx: int,
         scale_X: Optional[bool] = True,
-        kernel=Matern(nu=5/3), 
+        kernel=Matern(nu=5/2), 
         alpha=1e-10, optimizer='fmin_l_bfgs_b',
         n_restarts_optimizer=0, 
         normalize_y=False, 
@@ -36,8 +36,16 @@ class GPR(GaussianProcessRegressor):
         self.Y_idx=Y_idx
         self.scale_X=scale_X
         
-        self.training_dataset= Dataset(df=df_training, input_idxs=self.X_idxs, output_idx=Y_idx).get_IO_dataset(scale=self.scale_X)
+        self.training_dataset= Dataset(
+            df=df_training, 
+            input_idxs=self.X_idxs, 
+            output_idx=Y_idx).get_IO_dataset(
+                scale=self.scale_X, 
+                dataset_type=DatasetType.TRAIN
+                )
+            
         self.gpr=None
+        
     def get_model(self):
         self.gpr = GaussianProcessRegressor(
             kernel=self.kernel, 
@@ -50,6 +58,10 @@ class GPR(GaussianProcessRegressor):
         self.gpr.fit(self.training_dataset.X,self.training_dataset.Y)
         
         return self.gpr
+    
+
+def get_GP_score(gp_model: GaussianProcessRegressor, test_dataset: Dataset) -> float:
+    return gp_model.score(test_dataset.X, test_dataset.Y)
     
 def save_onnx(gp_model: GaussianProcessRegressor, n_params: int):
     initial_type = [('float_input', FloatTensorType([None, n_params]))]

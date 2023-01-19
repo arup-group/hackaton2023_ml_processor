@@ -1,5 +1,6 @@
 import pandas as pd
-from modules.gp import GPR, save_onnx
+from modules.gp import GPR, save_onnx, get_GP_score
+from modules.dataset import Dataset, DatasetType
 # Datasets 
 TRAINING_DATASET_PATH = "./datasets/dataset_02_256.xlsx" 
 TESTING_DATASET_PATH="./datasets/dataset_02_81.xlsx" 
@@ -9,7 +10,18 @@ df_training = pd.read_excel(TRAINING_DATASET_PATH , skiprows=5)
 df_testing = pd.read_excel(TESTING_DATASET_PATH, skiprows=5)
 
 gp_model = GPR(df_training=df_training, X_idxs=[1,2,3,4], Y_idx=5, scale_X=True).get_model()
-save_onnx(gp_model=gp_model, n_params=4)
+
+test_dataset= Dataset(df=df_testing, input_idxs=[1,2,3,4], output_idx=5).get_IO_dataset(scale=True, dataset_type=DatasetType.TEST)
+
+gp_score = get_GP_score(gp_model=gp_model, test_dataset=test_dataset)
+
+print(gp_score)
+
+
+
+
+
+# save_onnx(gp_model=gp_model, n_params=4)
 print("Ciao")
 # gpr = GaussianProcessRegressor(kernel=kernel,n_restarts_optimizer=9)
 # gpr.fit(training_dataset.X,training_dataset.Y)

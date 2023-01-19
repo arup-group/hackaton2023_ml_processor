@@ -3,8 +3,11 @@ from dataclasses import dataclass
 from nptyping import NDArray, Bool
 from typing import Any, Optional,List, Tuple
 from sklearn.preprocessing import StandardScaler
+from enum import Enum
 
-
+class DatasetType(Enum):
+    TRAIN = "TRAIN"
+    TEST = "TEST"
 @dataclass
 class IODataset:
     scale: Bool 
@@ -18,7 +21,11 @@ class Dataset():
         self.input_idxs = input_idxs
         self.output_idx=output_idx
         
-    def get_IO_dataset(self, scale: Optional[Bool] = True) -> IODataset:
+    def get_IO_dataset(
+        self, 
+        scale: bool, 
+        dataset_type: DatasetType,
+        ) -> IODataset:
         
         # Inputs
         X = self.df.loc[:, self.df.columns[self.input_idxs]].values
@@ -26,8 +33,15 @@ class Dataset():
         Y = pd.DataFrame = self.df.loc[:, self.df.columns[[self.output_idx]]].values
         
         if scale:
+            
             scaler = StandardScaler()
-            X = scaler.fit_transform(X)
+            
+            if dataset_type == DatasetType.TRAIN:
+                X = scaler.fit_transform(X)
+            
+            if dataset_type == DatasetType.TEST:
+                scaler.fit(X)
+                X = scaler.transform(X)
         
         return IODataset(
             scale=scale,
