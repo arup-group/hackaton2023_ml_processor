@@ -3,14 +3,14 @@ from modules.gp import GPR, GPScores
 from modules.dataset import Dataset, DatasetType
 import numpy as np
 # Datasets 
-TRAINING_DATASET_PATH = "./datasets/dataset_02_256.xlsx" 
-TESTING_DATASET_PATH="./datasets/dataset_02_81.xlsx" 
+TRAINING_DATASET_PATH = "./datasets/DataSet_03-1296.csv" 
+TESTING_DATASET_PATH="./datasets/DataSet_03-256.csv" 
 
 ONX_EXPORT_PATH = "./onnx_export"
 
 # Dataframes
-df_training = pd.read_excel(TRAINING_DATASET_PATH , skiprows=5)
-df_testing = pd.read_excel(TESTING_DATASET_PATH, skiprows=5)
+df_training = pd.read_csv(TRAINING_DATASET_PATH)
+df_testing = pd.read_csv(TESTING_DATASET_PATH)
 
 test_dataset= Dataset(df=df_testing, input_idxs=[1,2,3,4], output_idx=5).get_IO_dataset()
 
