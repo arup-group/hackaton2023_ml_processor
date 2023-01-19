@@ -8,7 +8,16 @@ from modules.dataset import Dataset, DatasetType
 import numpy as np
 from skl2onnx.common.data_types import FloatTensorType
 from skl2onnx import convert_sklearn
+from dataclasses import dataclass
+from sklearn.metrics import mean_squared_error
+from datetime import datetime
 
+@dataclass
+class GPScores:
+    default_score: float
+    rmse: float
+    mae: float
+    
 class GPR(GaussianProcessRegressor):
     def __init__(
         self, 
@@ -44,9 +53,9 @@ class GPR(GaussianProcessRegressor):
                 dataset_type=DatasetType.TRAIN
                 )
             
-        self.gpr=None
+        self._get_model()
         
-    def get_model(self):
+    def _get_model(self):
         self.gpr = GaussianProcessRegressor(
             kernel=self.kernel, 
             alpha=self.alpha, 
@@ -60,12 +69,42 @@ class GPR(GaussianProcessRegressor):
         return self.gpr
     
 
-def get_GP_score(gp_model: GaussianProcessRegressor, test_dataset: Dataset) -> float:
-    return gp_model.score(test_dataset.X, test_dataset.Y)
-    
-def save_onnx(gp_model: GaussianProcessRegressor, n_params: int):
-    initial_type = [('float_input', FloatTensorType([None, n_params]))]
-    onx = convert_sklearn(gp_model, initial_types=initial_type)
-    with open("gp_model.onnx", "wb") as f:
-        f.write(onx.SerializeToString())
+
+    def get_scores(self, test_dataset: Dataset) -> GPScores:
+        
+        # Default GP score
+        gp_score = np.round(self.gpr.score(test_dataset.X, test_dataset.Y),2)
+        
+        # Predict Mean value from the GP 
+        y = self.gpr.predict(test_dataset.X, return_std = False)
+        
+        # RMSE  (Root mean squared error)
+        rmse = np.round(np.sqrt(mean_squared_error(y,test_dataset.Y)),3)
+        
+        # MAE Mean Absolute Error
+        mae = np.round(mean_squared_error(y, test_dataset.Y),2) 
+        
+        return GPScores(
+            default_score=gp_score,
+            rmse =rmse,
+            mae=mae
+        )
+
+    def save_onnx(self, n_X: int, path: str)->None:
+        
+        initial_type = [('float_input', FloatTensorType([None, n_X]))]
+        onx = convert_sklearn(self.gpr, initial_types=initial_type)
+        
+        now = datetime.now()
+        date_time_str = now.strftime("%m_%d_%Y_%H_%M_%S")
+        
+        export_path = f"gp_model_{date_time_str}.onnx"
+        
+        if path:
+            export_path = f"{path}/{export_path}"
+
+        with open(export_path, "wb") as f:
+            f.write(onx.SerializeToString())
+        
+        return
     

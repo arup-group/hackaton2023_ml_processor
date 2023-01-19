@@ -1,13 +1,14 @@
 import pandas as pd
 from dataclasses import dataclass
 from nptyping import NDArray, Bool
-from typing import Any, Optional,List, Tuple
+from typing import List
 from sklearn.preprocessing import StandardScaler
 from enum import Enum
 
 class DatasetType(Enum):
     TRAIN = "TRAIN"
     TEST = "TEST"
+    
 @dataclass
 class IODataset:
     scale: Bool 
@@ -48,38 +49,4 @@ class Dataset():
             X=X,
             Y=Y
         )
-            
-            
-            
-        
-        # training_dataset[['p1', 'p2', 'p3', 'p4']].copy()
-        
-        
-        # # Import dataframe
-        
-        # df = pd.read_excel(path, skiprows=5)
-        
 
-        # # Rename columns
-        # # Current mapping
-        # # p1 -> Load
-        # # p2 -> Span in X-Dir
-        # # p3 -> Span in Y-Dir
-        # # p4 -> Slab thickness
-        
-        # df.rename(
-        #     columns={
-        #         df.columns[0] : 'p1',
-        #         df.columns[1] : 'p2',
-        #         df.columns[2] : 'p3',
-        #         df.columns[3] : 'p4',
-        #         df.columns[4] : 'rf',
-        #         df.columns[5] : 'f1',
-        #         df.columns[6] : 'f2',
-        #         df.columns[7] : 'f3',
-        #     },
-        #     inplace=True
-        # )
-        
-        
-        # return df
