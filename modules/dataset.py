@@ -28,19 +28,7 @@ class Dataset():
         # Inputs
         X = self.df.loc[:, self.df.columns[self.input_idxs]].values
         # Output
-        Y = pd.DataFrame = self.df.loc[:, self.df.columns[[self.output_idx]]].values
-        
-        # if scale:
-            
-        #     scaler = StandardScaler()
-            
-        #     if dataset_type == DatasetType.TRAIN:
-        #         scale_data = scaler.fit(X)
-                
-        #         X = scaler.fit_transform(X)
-            
-        #     if dataset_type == DatasetType.TEST:
-        #         X = scaler.transform(X)
+        Y = self.df.loc[:, self.df.columns[[self.output_idx]]].values
         
         return IODataset(
             X=X,

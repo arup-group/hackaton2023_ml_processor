@@ -43,7 +43,7 @@ class GPR(GaussianProcessRegressor):
         X_idxs: List[int], 
         Y_idx: int,
         kernel=Matern(nu=5/2), 
-        alpha=1e-10, optimizer='fmin_l_bfgs_b',
+        alpha=1e-12, optimizer='fmin_l_bfgs_b',
         n_restarts_optimizer=0, 
         normalize_y=False, 
         copy_X_train=True,
@@ -60,7 +60,8 @@ class GPR(GaussianProcessRegressor):
         self.df_training= df_training
         self.X_idxs=X_idxs
         self.Y_idx=Y_idx
-        self.scaler = StandardScaler()
+        self.scaler_X = StandardScaler()
+        self.scaler_Y = StandardScaler()
         
         self.training_dataset= Dataset(
             df=df_training, 
@@ -78,26 +79,28 @@ class GPR(GaussianProcessRegressor):
             normalize_y=self.normalize_y,
             copy_X_train=self.copy_X_train
             )
-        X_transformed = self.scaler.fit_transform(self.training_dataset.X)
-        self.gpr.fit(X_transformed, self.training_dataset.Y)
+        X_transformed = self.scaler_X.fit_transform(self.training_dataset.X)
+        Y_transformed = self.scaler_Y.fit_transform(self.training_dataset.Y.reshape(-1, 1))
+        self.gpr.fit(X_transformed, Y_transformed)
         return self.gpr
     
 
 
     def get_scores(self, test_dataset: Dataset) -> GPScores:
         
-        X_transformed = self.scaler.transform(test_dataset.X)
+        X_transformed = self.scaler_X.transform(test_dataset.X)
+        Y_transformed = self.scaler_Y.transform(test_dataset.Y)
         # Default GP score
-        gp_score = np.round(self.gpr.score(X_transformed, test_dataset.Y),2)
+        gp_score = np.round(self.gpr.score(X_transformed, Y_transformed),20)
         
         # Predict Mean value from the GP 
         y = self.gpr.predict(X_transformed, return_std = False)
         
         # RMSE  (Root mean squared error)
-        rmse = np.round(np.sqrt(mean_squared_error(y,test_dataset.Y)),3)
+        rmse = np.round(np.sqrt(mean_squared_error(y,Y_transformed)),3)
         
         # MAE Mean Absolute Error
-        mae = np.round(mean_squared_error(y, test_dataset.Y),2) 
+        mae = np.round(mean_squared_error(y, Y_transformed),2) 
         
         return GPScores(
             default_score=gp_score,
@@ -107,13 +110,14 @@ class GPR(GaussianProcessRegressor):
         
     def estimate(self, X: NDArray) -> List[GPEstimate]:
         
-        X_transformed = self.scaler.transform(X)
+        X_transformed = self.scaler_X.transform(X)
             
         result: List[GPEstimate] = []
         
         # GP prediction
-        mean, std = self.gpr.predict(X_transformed, return_std = True)
-        
+        mean_transformed, std_transformed = self.gpr.predict(X_transformed, return_std = True)
+        mean = self.scaler_Y.inverse_transform(mean_transformed.reshape(-1, 1))
+        std = self.scaler_Y.scale_*std_transformed.reshape(-1, 1)
         for mu, sigma in zip(mean, std):
             
             confidence_intervals: List[GPConfidenceInterval] = []
