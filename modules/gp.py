@@ -3,8 +3,7 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from modules.dataset import Dataset
 import pandas as pd
 from sklearn.gaussian_process.kernels import Matern
-from typing import List, Optional
-from modules.dataset import Dataset, DatasetType
+from modules.dataset import Dataset
 import numpy as np
 from skl2onnx.common.data_types import FloatTensorType
 from skl2onnx import convert_sklearn
@@ -14,6 +13,8 @@ from datetime import datetime
 from enum import Enum
 from nptyping import NDArray
 from sklearn.preprocessing import StandardScaler
+
+
 class ConfidenceEnum(Enum):
     C68 = "68"
     C95 = "95"

@@ -1,14 +1,7 @@
 import pandas as pd
 from dataclasses import dataclass
-from nptyping import NDArray, Bool
+from nptyping import NDArray
 from typing import List
-from sklearn.preprocessing import StandardScaler
-from enum import Enum
-
-class DatasetType(Enum):
-    TRAIN = "TRAIN"
-    TEST = "TEST"
-    
 @dataclass
 class IODataset:
     X: NDArray
@@ -34,4 +27,5 @@ class Dataset():
             X=X,
             Y=Y
         )
+    
 
