@@ -3,6 +3,7 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from modules.dataset import Dataset
 import pandas as pd
 from sklearn.gaussian_process.kernels import Matern
+from typing import List, Optional
 from modules.dataset import Dataset
 import numpy as np
 from skl2onnx.common.data_types import FloatTensorType
