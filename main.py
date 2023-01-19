@@ -1,9 +1,11 @@
 import pandas as pd
-from modules.gp import GPR, save_GP_onnx, GPScores
+from modules.gp import GPR, GPScores
 from modules.dataset import Dataset, DatasetType
 # Datasets 
 TRAINING_DATASET_PATH = "./datasets/dataset_02_256.xlsx" 
 TESTING_DATASET_PATH="./datasets/dataset_02_81.xlsx" 
+
+ONX_EXPORT_PATH = "./onnx_export"
 
 # Dataframes
 df_training = pd.read_excel(TRAINING_DATASET_PATH , skiprows=5)
@@ -18,3 +20,5 @@ gp_scores : GPScores  = gp_model.get_scores(test_dataset=test_dataset)
 print(f"GP score: {gp_scores.default_score}")
 print(f"RMSE: {gp_scores.rmse}")
 print(f"MAE: {gp_scores.mae}")
+
+gp_model.save_onnx(n_X=4, path=ONX_EXPORT_PATH)
