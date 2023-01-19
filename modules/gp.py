@@ -14,6 +14,7 @@ from datetime import datetime
 from enum import Enum
 from nptyping import NDArray
 from sklearn.preprocessing import StandardScaler
+import pickle
 
 
 class ConfidenceEnum(Enum):
@@ -162,3 +163,27 @@ class GPR(GaussianProcessRegressor):
         
         return
     
+
+    def save_gp_model(self, path: str = None)->None:
+        
+        now = datetime.now()
+        date_time_str = now.strftime("%m_%d_%Y_%H_%M_%S")
+        export_path_gp = f"gp_model_{date_time_str}.pkl"
+        
+        if path:
+            export_path_gp = f"{path}/{export_path_gp}" 
+
+            
+        # save the model to a file
+        with open(export_path_gp, "wb") as file:
+            gpr = self.gpr
+            scale_mean_X = self.scaler_X.mean_
+            scale_var_X = self.scaler_X.scale_
+            scale_mean_Y = self.scaler_Y.mean_
+            scale_var_Y = self.scaler_Y.scale_
+            pickle.dump(gpr, file)
+            pickle.dump(scale_mean_X, file)
+            pickle.dump(scale_var_X, file)
+            pickle.dump(scale_mean_Y, file)
+            pickle.dump(scale_var_Y, file)
+        return

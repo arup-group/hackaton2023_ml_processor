@@ -2,6 +2,7 @@ import pandas as pd
 from dataclasses import dataclass
 from nptyping import NDArray
 from typing import List
+
 @dataclass
 class IODataset:
     X: NDArray
