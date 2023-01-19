@@ -11,7 +11,6 @@ class DatasetType(Enum):
     
 @dataclass
 class IODataset:
-    scale: Bool 
     X: NDArray
     Y: NDArray
 
@@ -24,8 +23,6 @@ class Dataset():
         
     def get_IO_dataset(
         self, 
-        scale: bool, 
-        dataset_type: DatasetType,
         ) -> IODataset:
         
         # Inputs
@@ -33,19 +30,19 @@ class Dataset():
         # Output
         Y = pd.DataFrame = self.df.loc[:, self.df.columns[[self.output_idx]]].values
         
-        if scale:
+        # if scale:
             
-            scaler = StandardScaler()
+        #     scaler = StandardScaler()
             
-            if dataset_type == DatasetType.TRAIN:
-                X = scaler.fit_transform(X)
+        #     if dataset_type == DatasetType.TRAIN:
+        #         scale_data = scaler.fit(X)
+                
+        #         X = scaler.fit_transform(X)
             
-            if dataset_type == DatasetType.TEST:
-                scaler.fit(X)
-                X = scaler.transform(X)
+        #     if dataset_type == DatasetType.TEST:
+        #         X = scaler.transform(X)
         
         return IODataset(
-            scale=scale,
             X=X,
             Y=Y
         )
