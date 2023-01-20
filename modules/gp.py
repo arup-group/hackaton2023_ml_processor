@@ -96,17 +96,21 @@ class GPR(GaussianProcessRegressor):
         # Default GP score
         gp_score = np.round(self.gpr.score(X_transformed, Y_transformed),20)
         
-        # Predict Mean value from the GP 
+        # Predict Mean value from the GP (scaled)
         y = self.gpr.predict(X_transformed, return_std = False)
         
+        # y inverse
+        y_no_scale = self.scaler_Y.inverse_transform(y.reshape(-1, 1))
+        Y_no_scale = self.scaler_Y.inverse_transform(Y_transformed.reshape(-1, 1))
+        
         # RMSE  (Root mean squared error)
-        rmse = np.round(np.sqrt(mean_squared_error(y,Y_transformed)),3)
+        rmse = np.round(np.sqrt(mean_squared_error(y_no_scale,Y_no_scale)),3)
         
         # MAE Mean Absolute Error
-        mae = np.round(mean_squared_error(y, Y_transformed),2) 
+        mae = np.round(mean_squared_error(y_no_scale,Y_no_scale),2) 
         
         return GPScores(
-            default_score=gp_score,
+            default_score=np.round(gp_score,3),
             rmse =rmse,
             mae=mae
         )
