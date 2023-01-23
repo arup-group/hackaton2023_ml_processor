@@ -6,3 +6,4 @@ openpyxl
 numpy
 nptyping
 skl2onnx
+smt 
